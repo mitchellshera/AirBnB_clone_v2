@@ -119,7 +119,7 @@ class HBNBCommand(cmd.Cmd):
             print("** class name missing **")
             return
 
-        args_list = args.split()
+        args_list = args.split(" ")
         class_name = args_list[0]
         keyword = {}
         
