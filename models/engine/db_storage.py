@@ -26,8 +26,7 @@ class DBStorage:
         db = environ.get('HBNB_MYSQL_DB')
 
         self.__engine = create_engine(
-            f'mysql+mysqldb://{user}:{pwd}@{host}/{db}',
-            pool_pre_ping=True
+            f'mysql+mysqldb://{user}:{pwd}@{host}/{db}',pool_pre_ping=True
         )
 
         if environ.get('HBNB_ENV') == 'test':
