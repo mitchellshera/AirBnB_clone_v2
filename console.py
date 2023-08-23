@@ -121,19 +121,21 @@ class HBNBCommand(cmd.Cmd):
 
         args_list = args.split()
         class_name = args_list[0]
-
+        keyword = {}
+        
         if class_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
 
-        new_instance = HBNBCommand.classes[class_name]()
-
         for param in args_list[1:]:
-            if '=' in param:
-                key, value = param.split('=')
-                setattr(new_instance, key, value)
-
-        storage.save()
+            arg_splited = param.split("=")
+            arg_splited[1] = eval(arg_splited[1])
+            if type(arg_splited[1]) is str:
+                arg_splited[1] = arg_splited[1].replace("_", " ").replace('"', '\\"')
+            keyword[arg_splited[0]] = arg_splited[1]
+            
+        new_instance = HBNBCommand.classes[args_list[0]](**keyword)
+        new_instance.save()
         print(new_instance.id)
 
     def help_create(self):
