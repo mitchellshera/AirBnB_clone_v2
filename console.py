@@ -123,9 +123,6 @@ class HBNBCommand(cmd.Cmd):
         class_name = args_list[0]
         keyword = {}
         
-        if class_name not in HBNBCommand.classes:
-            print("** class doesn't exist **")
-            return
 
         for param in args_list[1:]:
             arg_splited = param.split("=")
@@ -133,7 +130,10 @@ class HBNBCommand(cmd.Cmd):
             if type(arg_splited[1]) is str:
                 arg_splited[1] = arg_splited[1].replace("_", " ").replace('"', '\\"')
             keyword[arg_splited[0]] = arg_splited[1]
-            
+        if class_name not in HBNBCommand.classes:
+            print("** class doesn't exist **")
+            return
+          
         new_instance = HBNBCommand.classes[args_list[0]](**keyword)
         new_instance.save()
         print(new_instance.id)
