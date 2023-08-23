@@ -113,32 +113,37 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, args):
-        """ Create an object of any class with given parameters"""
+    def do_create(self, line):
+        """Create a new instance with parameters"""
         try:
-            if not args:
-                raise SyntaxError;
+            if not line:
+                raise SyntaxError("** class name missing **")
 
-            args_list = args.split(" ")
-            keyword = {}
-            
+            class_name, *params = line.split()
 
-            for param in args_list[1:]:
-                arg_splited = param.split("=")
-                arg_splited[1] = eval(arg_splited[1])
-                if type(arg_splited[1]) is str:
-                    arg_splited[1] = arg_splited[1].replace("_", " ").replace('"', '\\"')
-                keyword[arg_splited[0]] = arg_splited[1]
-            
-        except SyntaxError:
-            print("** class name missing **")
+            if class_name not in HBNBCommand.classes:
+                raise NameError("** class doesn't exist **")
 
-        except NameError:
-            print("** class doesn't exist **")
-         
-        new_instance = HBNBCommand.classes[args_list[0]](**keyword)
-        new_instance.save()
-        print(new_instance.id)
+            obj = HBNBCommand.classes[class_name]()
+
+            for param in params:
+                key_value = param.split('=')
+                if len(key_value) != 2:
+                    continue
+
+                key, value = key_value
+                try:
+                    value = eval(value)
+                    if isinstance(value, str):
+                        value = value.replace("_", " ")
+                    setattr(obj, key, value)
+                except Exception:
+                    continue
+
+            obj.save()
+            print("{}".format(obj.id))
+        except (SyntaxError, NameError) as e:
+            print(e)
 
     def help_create(self):
         """ Help information for the create method """
