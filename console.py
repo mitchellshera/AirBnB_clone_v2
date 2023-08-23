@@ -113,13 +113,13 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, line):
+    def do_create(self, *args):
         """Create a new instance with parameters"""
         try:
-            if not line:
+            if not args:
                 raise SyntaxError("** class name missing **")
 
-            class_name, *params = line.split()
+            class_name, *params = args.split()
 
             if class_name not in HBNBCommand.classes:
                 raise NameError("** class doesn't exist **")
@@ -127,23 +127,31 @@ class HBNBCommand(cmd.Cmd):
             obj = HBNBCommand.classes[class_name]()
 
             for param in params:
-                key_value = param.split('=')
-                if len(key_value) != 2:
-                    continue
-
-                key, value = key_value
-                try:
-                    value = eval(value)
-                    if isinstance(value, str):
-                        value = value.replace("_", " ")
+                key_value = self.parse_key_value(param)
+                if key_value:
+                    key, value = key_value
                     setattr(obj, key, value)
-                except Exception:
-                    continue
 
             obj.save()
             print("{}".format(obj.id))
-        except (SyntaxError, NameError) as e:
+        except SyntaxError as e:
             print(e)
+        except NameError as e:
+            print(e)
+
+    def parse_key_value(self, arg):
+        """Parse a parameter in the format 'key=value'"""
+        if '=' not in arg:
+            return None
+
+        key, value = arg.split('=')
+        try:
+            value = eval(value)
+            if isinstance(value, str):
+                value = value.replace("_", " ")
+            return key, value
+        except Exception:
+            return None
 
     def help_create(self):
         """ Help information for the create method """
