@@ -72,6 +72,6 @@ class BaseModel:
         return dct
 
     def delete(self):
-        '''deletes the current instance from the storage'''
+        '''deletes instance from the storage'''
         from models import storage
         storage.delete(self)
