@@ -97,3 +97,55 @@ class test_basemodel(unittest.TestCase):
         n = new.to_dict()
         new = BaseModel(**n)
         self.assertFalse(new.created_at == new.updated_at)
+    def test_delete(self):
+        """Testing delete method"""
+        i = self.value()
+        i.save()
+        key = self.name + "." + i.id
+        i.delete()  # Delete the instance
+        with open('file.json', 'r') as f:
+            j = json.load(f)
+            self.assertNotIn(key, j)  # Key should not be present in JSON
+
+    def test_equality_after_dict(self):
+        """Test equality after converting to/from dictionary"""
+        i = self.value()
+        i.save()
+        key = self.name + "." + i.id
+        with open('file.json', 'r') as f:
+            j = json.load(f)
+            loaded_instance_dict = j[key]
+            loaded_instance = self.value(**loaded_instance_dict)
+            self.assertEqual(i.to_dict(), loaded_instance.to_dict())
+
+    def test_json_format(self):
+        """Test JSON format in file"""
+        i = self.value()
+        i.save()
+        key = self.name + "." + i.id
+        with open('file.json', 'r') as f:
+            j = json.load(f)
+            self.assertIsInstance(j[key], dict)
+            self.assertIn('id', j[key])
+            self.assertIn('created_at', j[key])
+            self.assertIn('updated_at', j[key])
+            # ... check other attributes ...
+
+    def test_str_format(self):
+        """Test string representation format"""
+        i = self.value()
+        self.assertEqual(str(i), '[{}] ({}) {}'.format(self.name, i.id, i.__dict__))
+
+    def test_id_uniqueness(self):
+        """Test uniqueness of generated IDs"""
+        instances = [self.value() for _ in range(10)]
+        id_set = set(instance.id for instance in instances)
+        self.assertEqual(len(instances), len(id_set))
+
+    def test_updated_at_after_save(self):
+        """Test updated_at after calling save"""
+        i = self.value()
+        created_time = i.created_at
+        i.save()
+        updated_time = i.updated_at
+        self.assertNotEqual(created_time, updated_time)
