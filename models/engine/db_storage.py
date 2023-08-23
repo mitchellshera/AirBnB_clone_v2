@@ -10,7 +10,7 @@ from models.amenity import Amenity
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from models.base_model import BaseModel, Base
-from os import environ
+from os import getenv
 
 
 class DBStorage:
@@ -20,17 +20,19 @@ class DBStorage:
 
     def __init__(self):
         """Initialize DBStorage"""
-        user = environ.get('HBNB_MYSQL_USER')
-        pwd = environ.get('HBNB_MYSQL_PWD')
-        host = environ.get('HBNB_MYSQL_HOST', 'localhost')
-        db = environ.get('HBNB_MYSQL_DB')
+        user = getenv('HBNB_MYSQL_USER')
+        pwd = getenv('HBNB_MYSQL_PWD')
+        host = getenv('HBNB_MYSQL_HOST', 'localhost')
+        db = getenv('HBNB_MYSQL_DB')
+        env = getenv('HBNB_ENV', 'development')
 
-        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.format(user, pwd, host, db),
-                              pool_pre_ping=True)
-
-
-        if environ.get('HBNB_ENV') == 'test':
+        self.__engine = create_engine(f'mysql+mysqldb://{user}:{pwd}@{host}/{db}',
+                                      pool_pre_ping=True)
+        if env == 'test':
             Base.metadata.drop_all(self.__engine)
+
+        Session = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        self.__session = scoped_session(Session)
 
     def all(self, cls=None):
         """Query on the database session"""
