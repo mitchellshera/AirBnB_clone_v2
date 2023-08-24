@@ -26,7 +26,8 @@ class DBStorage:
         db = getenv('HBNB_MYSQL_DB')
         env = getenv('HBNB_ENV', 'development')
 
-        self.__engine = create_engine(f'mysql+mysqldb://{user}:{pwd}@{host}/{db}',
+        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.format
+                                      (user,pwd,host,db),
                                       pool_pre_ping=True)
         if env == 'test':
             Base.metadata.drop_all(self.__engine)
@@ -74,3 +75,7 @@ class DBStorage:
             )
         )
         self.__session = Session()
+    def close(self):
+        """ calls remove()
+        """
+        self.__session.close()
