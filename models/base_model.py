@@ -50,7 +50,10 @@ class BaseModel:
         """Returns a string representation of the instance"""
         return '[{}] ({}) {}'.format(
             self.__class__.__name__, self.id, self.__dict__)
-
+    def __repr__(self):
+        """return a string representaion
+        """
+        return self.__str__()
     def save(self):
         """Updates updated_at with current time when instance is changed"""
         from models import storage
@@ -60,13 +63,12 @@ class BaseModel:
 
     def to_dict(self):
         """Convert instance into dict format"""
-        dct = self.__dict__.copy()
-        dct['__class__'] = self.__class__.__name__
-        for k in dct:
-            if type(dct[k]) is datetime:
-                dct[k] = dct[k].isoformat()
+        dct = dict(self.__dict__)
+        dct["__class__"] = str(type(self).__name__)
+        dct["created_at"] = self.created_at.isoformat()
+        dct["updated_at"] = self.updated_at.isoformat()
         if '_sa_instance_state' in dct.keys():
-            del(dct['_sa_instance_state'])
+            del dct['_sa_instance_state']
         return dct
 
     def delete(self):
