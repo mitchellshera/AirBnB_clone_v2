@@ -2,7 +2,7 @@
 """ State Module for HBNB project """
 from models.base_model import BaseModel, Base
 from models import storage_type
-
+import shlex
 from models.city import City
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
@@ -21,9 +21,15 @@ class State(BaseModel, Base):
             equals the current State.id
             FileStorage relationship between State and City
         '''
-        related_cities = []
-        cities = models.storage.all(City)
-        for city in cities.values():
-            if city.state_id == self.id:
-                related_cities.append(city)
-        return related_cities
+        var = models.storage.all()
+        lista = []
+        result = []
+        for key in var:
+            city = key.replace('.', ' ')
+            city = shlex.split(city)
+            if (city[0] == 'City'):
+                lista.append(var[key])
+        for elem in lista:
+            if (elem.state_id == self.id):
+                result.append(elem)
+        return (result)
