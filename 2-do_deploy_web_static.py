@@ -9,7 +9,6 @@ import os
 
 
 env.hosts = ['54.175.198.8', '52.86.56.129']
-env.user = 'ubuntu'
 
 def do_pack():
     """
