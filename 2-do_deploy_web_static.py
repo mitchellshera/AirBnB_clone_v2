@@ -1,61 +1,52 @@
 #!/usr/bin/python3
 """
-Fabric script that distributes an archive to your web servers using the function do_deploy.
+Fabric script that distributes an archive to your web servers.
 """
-from fabric.api import env, put, run, local
-from os.path import exists
-from datetime import datetime
+from fabric.api import env, run, put, local
 import os
 
-
-env.hosts = ['54.175.198.8', '52.86.56.129']
+env.hosts = ['54.237.9.28', '3.85.196.6']
 env.user = 'ubuntu'
+env.key_filename = '/home/shera/.ssh/id_rsa'
 
-def do_pack():
-    """
-    Generates a .tgz archive from the contents of the web_static folder.
-    Returns: Archive path or None on failure.
-    """
-    try:
-        current_time = datetime.now()
-        archive_name = "web_static_{}{}{}{}{}{}.tgz".format(
-            current_time.year,
-            str(current_time.month).zfill(2),
-            str(current_time.day).zfill(2),
-            str(current_time.hour).zfill(2),
-            str(current_time.minute).zfill(2),
-            str(current_time.second).zfill(2)
-        )
-        archive_path = "versions/{}".format(archive_name)
-
-        if not os.path.exists("versions"):
-            os.mkdir("versions")
-
-        local("tar -czvf {} web_static".format(archive_path))
-        return archive_path
-    except Exception:
-        return None
 
 def do_deploy(archive_path):
     """
-    Distributes an archive to web servers and deploys it.
+    Distributes an archive to the web servers and deploys it.
     """
-    if not exists(archive_path):
+    if not os.path.exists(archive_path):
         return False
 
     try:
-        archive_name = archive_path.split("/")[-1]
-        folder_name = "/data/web_static/releases/{}".format(
-            archive_name.split(".")[0])
-
+        # Upload the archive to the /tmp/ directory of the web server
         put(archive_path, "/tmp/")
-        run("mkdir -p {}".format(folder_name))
-        run("tar -xzf /tmp/{} -C {}/".format(archive_name, folder_name))
-        run("rm /tmp/{}".format(archive_name))
-        run("mv {}/web_static/* {}".format(folder_name, folder_name))
-        run("rm -rf {}/web_static".format(folder_name))
+
+        # Create the target directory for the new version
+        release_folder = "/data/web_static/releases/{}".format(
+            os.path.splitext(os.path.basename(archive_path))[0])
+        run("mkdir -p {}".format(release_folder))
+
+        # Uncompress the archive to the target directory
+        run("tar -xzf /tmp/{} -C {}".format(
+            os.path.basename(archive_path), release_folder))
+
+        # Remove the archive from the web server
+        run("rm /tmp/{}".format(os.path.basename(archive_path)))
+
+        # Move the contents of the new version to the appropriate location
+        run("mv {}/web_static/* {}/".format(release_folder, release_folder))
+
+        # Remove the now-empty web_static folder
+        run("rm -rf {}/web_static".format(release_folder))
+
+        # Delete the old symbolic link
         run("rm -rf /data/web_static/current")
-        run("ln -s {} /data/web_static/current".format(folder_name))
+
+        # Create a new symbolic link
+        run("ln -s {} /data/web_static/current".format(release_folder))
+
+        print("New version deployed!")
         return True
-    except Exception:
+
+    except Exception as e:
         return False

@@ -1,0 +1,20 @@
+global
+    daemon
+    maxconn 256
+
+defaults
+    mode http
+    timeout connect 5000ms
+    timeout client 50000ms
+    timeout server 50000ms
+
+frontend http-in
+    bind *:80
+    bind *:443 ssl crt /etc/letsencrypt/live/www.holgdie64.tech/fullchain.pem
+    reqadd X-Forwarded-Proto:\ https
+    default_backend web-servers
+
+backend web-servers
+    balance roundrobin
+    server 259884-web-01 259884-web-01:80 check
+    server 259884-web-02 259884-web-02:80 check
