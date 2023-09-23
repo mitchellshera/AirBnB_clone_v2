@@ -8,8 +8,10 @@ It defines four routes:
 2. '/hbnb' which displays "HBNB".
 3. '/c/<text>' which displays "C " followed by the value of the text variable
    (replace underscore _ symbols with a space).
-4. '/python/<text>' which displays "Python " followed by the value of the text variable
-   (replace underscore _ symbols with a space). The default value of text is "is cool".
+4. '/python/<text>' which displays
+    "Python " followed by the value of the text variable
+   (replace underscore _ symbols with a space).
+   The default value of text is "is cool".
 All route definitions use the option strict_slashes=False.
 """
 
