@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+#shows hello hbnb!
+
 from flask import Flask
 
 app = Flask(__name__)
