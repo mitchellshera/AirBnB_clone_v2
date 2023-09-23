@@ -80,5 +80,5 @@ class DBStorage:
         self.__session = Session()
 
     def close(self):
-        """Cals remove()"""
+        """Calls remove()"""
         self.__session.close()
