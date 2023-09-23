@@ -8,7 +8,7 @@ from models.city import City
 from sqlalchemy import Column
 from sqlalchemy import String
 from sqlalchemy.orm import relationship
-
+import shlex
 
 class State(BaseModel, Base):
     """Represents a state for a MySQL database.
@@ -33,3 +33,18 @@ class State(BaseModel, Base):
                 if city.state_id == self.id:
                     city_list.append(city)
             return city_list
+        
+    @property
+    def cities(self):
+        var = models.storage.all()
+        lista = []
+        result = []
+        for key in var:
+            city = key.replace('.', ' ')
+            city = shlex.split(city)
+            if (city[0] == 'City'):
+                lista.append(var[key])
+        for elem in lista:
+            if (elem.state_id == self.id):
+                result.append(elem)
+        return (result)
