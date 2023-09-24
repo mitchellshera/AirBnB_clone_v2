@@ -40,7 +40,7 @@ class Place(BaseModel, Base):
         reviews = relationship('Review', backref='place',
                                cascade='all, delete, delete-orphan')
         amenities = relationship('Amenity', secondary=place_amenity,
-                                 viewonly=False, backref='place_amenities')
+                                 viewonly=False, backref='plcs')
     else:
         city_id = ""
         user_id = ""
@@ -69,7 +69,7 @@ class Place(BaseModel, Base):
             return lst
 
         @property
-        def amenities(self):
+        def amenity_list(self):
             ''' returns the list of Amenity instances
                 based on the attribute amenity_ids that
                 contains all Amenity.id linked to the Place
@@ -82,8 +82,8 @@ class Place(BaseModel, Base):
                     lst.append(amen)
             return lst
 
-        @amenities.setter
-        def amenities(self, obj):
+        @amenity_list.setter
+        def amenity_list(self, obj):
             ''' method for adding an Amenity.id to the
                 attribute amenity_ids. accepts only Amenity
                 objects
